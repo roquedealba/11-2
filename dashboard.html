@@ -108,11 +108,26 @@
         .task-details a:hover {
             color: #0056b3;
         }
+	.logout-btn {
+    		background-color: #ff4d4d;
+    		color: white;
+    		border: none;
+    		padding: 10px 20px;
+    		cursor: pointer;
+    		border-radius: 5px;
+    		font-size: 16px;
+	}
+
+.logout-btn:hover {
+    background-color: #ff1a1a;
+}
+
     </style>
 </head>
 <body>
     <nav class="navbar">
         <h2 id="welcomeMessage">Hola, [Nombre del Usuario]</h2>
+	<button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
     </nav>
     <div class="tasks-container">
         <h3>Tareas Pendientes</h3>
@@ -127,6 +142,14 @@
         </div>
     </div>
     <script>
+	function logout() {
+    		// Elimina el nombre del usuario de sessionStorage
+    		sessionStorage.removeItem('loggedInUser');
+    
+   		 // Redirige al usuario a la página de inicio de sesión
+    		window.location.href = 'index.html';
+	}
+
         const tasks = [
             { 
                 id: 1, 
