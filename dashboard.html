@@ -18,6 +18,24 @@
             color: white;
             text-align: center;
             font-size: 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logout-button {
+            background-color: #dc3545;
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-button:hover {
+            background-color: #c82333;
         }
 
         .tasks-container {
@@ -119,6 +137,7 @@
 <body>
     <nav class="navbar">
         <h2 id="welcomeMessage">Hola, [Nombre del Usuario]</h2>
+        <button class="logout-button" onclick="logout()">Cerrar Sesión</button>
     </nav>
     <div class="tasks-container">
         <h3>Tareas Pendientes</h3>
@@ -216,6 +235,11 @@
                 localStorage.setItem(loggedInUser + '_completedTasks', JSON.stringify(completedTasks));
                 location.reload(); // Recarga la página para actualizar el estado de las tareas
             }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('loggedInUser');
+            window.location.href = 'index.html';
         }
     </script>
 </body>
