@@ -198,7 +198,9 @@
                 li.innerHTML = `
                     <span>${task.nombre} (Entrega: ${task.fecha})</span>
                     ${task.respuesta ? `<a href="#" onclick="showTaskDetails(${task.id})">Ver Respuesta</a>` : ''}
-                    ${completedTasks.includes(task.id) ? `<span class="completed-icon">✔ Terminada</span>` : `<button onclick="markAsCompleted(${task.id})">Marcar como Terminada</button>`}
+                    ${completedTasks.includes(task.id) 
+                        ? `<span class="completed-icon">✔ Terminada</span><button onclick="unmarkAsCompleted(${task.id})">Desmarcar como Terminada</button>` 
+                        : `<button onclick="markAsCompleted(${task.id})">Marcar como Terminada</button>`}
                 `;
                 taskList.appendChild(li);
             });
@@ -232,6 +234,17 @@
             let completedTasks = JSON.parse(localStorage.getItem(loggedInUser + '_completedTasks')) || [];
             if (!completedTasks.includes(taskId)) {
                 completedTasks.push(taskId);
+                localStorage.setItem(loggedInUser + '_completedTasks', JSON.stringify(completedTasks));
+                location.reload(); // Recarga la página para actualizar el estado de las tareas
+            }
+        }
+
+        function unmarkAsCompleted(taskId) {
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            let completedTasks = JSON.parse(localStorage.getItem(loggedInUser + '_completedTasks')) || [];
+            const taskIndex = completedTasks.indexOf(taskId);
+            if (taskIndex > -1) {
+                completedTasks.splice(taskIndex, 1);
                 localStorage.setItem(loggedInUser + '_completedTasks', JSON.stringify(completedTasks));
                 location.reload(); // Recarga la página para actualizar el estado de las tareas
             }
