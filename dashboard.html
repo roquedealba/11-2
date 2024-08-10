@@ -108,26 +108,17 @@
         .task-details a:hover {
             color: #0056b3;
         }
-	.logout-btn {
-    		background-color: #ff4d4d;
-    		color: white;
-    		border: none;
-    		padding: 10px 20px;
-    		cursor: pointer;
-    		border-radius: 5px;
-    		font-size: 16px;
-	}
 
-.logout-btn:hover {
-    background-color: #ff1a1a;
-}
-
+        .completed-icon {
+            color: green;
+            margin-left: 10px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
     <nav class="navbar">
         <h2 id="welcomeMessage">Hola, [Nombre del Usuario]</h2>
-	<button class="logout-btn" onclick="logout()">Cerrar Sesión</button>
     </nav>
     <div class="tasks-container">
         <h3>Tareas Pendientes</h3>
@@ -142,14 +133,6 @@
         </div>
     </div>
     <script>
-	function logout() {
-    		// Elimina el nombre del usuario de sessionStorage
-    		sessionStorage.removeItem('loggedInUser');
-    
-   		 // Redirige al usuario a la página de inicio de sesión
-    		window.location.href = 'index.html';
-	}
-
         const tasks = [
             { 
                 id: 1, 
@@ -172,7 +155,6 @@
                 respuesta: 'Un pequeño numero de personas deben entregar el contenido del periodico escolar el lunes, para obtener una nota sobre 100', 
                 attachments: [] 
             },
-		
             // Añade más tareas aquí con diferentes tipos de respuesta y archivos adjuntos
         ];
 
@@ -188,12 +170,16 @@
 
         function loadTasks() {
             const taskList = document.getElementById('taskList');
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            const completedTasks = JSON.parse(localStorage.getItem(loggedInUser + '_completedTasks')) || [];
+
             tasks.forEach(task => {
                 const li = document.createElement('li');
                 li.className = 'task-item';
                 li.innerHTML = `
                     <span>${task.nombre} (Entrega: ${task.fecha})</span>
                     ${task.respuesta ? `<a href="#" onclick="showTaskDetails(${task.id})">Ver Respuesta</a>` : ''}
+                    ${completedTasks.includes(task.id) ? `<span class="completed-icon">✔ Terminada</span>` : `<button onclick="markAsCompleted(${task.id})">Marcar como Terminada</button>`}
                 `;
                 taskList.appendChild(li);
             });
@@ -220,6 +206,16 @@
                 link.textContent = `Descargar ${attachment.tipo === 'pdf' ? 'PDF' : attachment.tipo === 'imagen' ? 'Imagen' : attachment.tipo === 'word' ? 'Documento Word' : 'Archivo'}`;
                 attachmentsContainer.appendChild(link);
             });
+        }
+
+        function markAsCompleted(taskId) {
+            const loggedInUser = sessionStorage.getItem('loggedInUser');
+            let completedTasks = JSON.parse(localStorage.getItem(loggedInUser + '_completedTasks')) || [];
+            if (!completedTasks.includes(taskId)) {
+                completedTasks.push(taskId);
+                localStorage.setItem(loggedInUser + '_completedTasks', JSON.stringify(completedTasks));
+                location.reload(); // Recarga la página para actualizar el estado de las tareas
+            }
         }
     </script>
 </body>
