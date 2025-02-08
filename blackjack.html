@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blackjack</title>
+    <style>
+        body {
+            background: radial-gradient(circle, #2c3e50, #1a252f);
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .mesa {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.2);
+            width: 80%;
+            max-width: 600px;
+        }
+        .cartas {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 20px 0;
+        }
+        .carta {
+            width: 50px;
+            height: 80px;
+            background: white;
+            color: black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 2px 2px 10px rgba(255, 255, 255, 0.2);
+        }
+        .boton {
+            padding: 10px 20px;
+            margin: 5px;
+            font-size: 16px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .boton:hover {
+            background: darkgoldenrod;
+        }
+        .hit {
+            background: #27ae60;
+        }
+        .stand {
+            background: #c0392b;
+        }
+        .reset {
+            background: #f1c40f;
+        }
+        /* Estilos para el botón de Ruleta */
+        .ruleta {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 15px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            color: white;
+            background: linear-gradient(45deg, #ff5733, #ffcc29);
+            text-decoration: none;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(255, 87, 51, 0.4);
+            transition: all 0.3s ease-in-out;
+        }
+        .ruleta:hover {
+            background: linear-gradient(45deg, #ffcc29, #ff5733);
+            box-shadow: 0 8px 20px rgba(255, 87, 51, 0.6);
+            transform: scale(1.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="mesa">
+        <h1>Blackjack</h1>
+        <h2 id="mensaje">¡Empieza el juego!</h2>
+        <div>
+            <h3>Jugador</h3>
+            <div class="cartas" id="cartas-jugador"></div>
+            <p>Puntos: <span id="puntos-jugador">0</span></p>
+        </div>
+        <div>
+            <h3>Dealer</h3>
+            <div class="cartas" id="cartas-crupier"></div>
+            <p>Puntos: <span id="puntos-crupier">0</span></p>
+        </div>
+        <button class="boton hit" onclick="pedirCarta()">Pedir Carta</button>
+        <button class="boton stand" onclick="plantarse()">Plantarse</button>
+        <button class="boton reset" onclick="reiniciarJuego()">Reiniciar</button>
+    </div>
+
+    <!-- Botón de Ruleta -->
+    <a href="ruleta.html" class="ruleta">Ruleta</a>
+
+    <script>
+        let mazo = [];
+        let jugador = [];
+        let crupier = [];
+        let juegoTerminado = false;
+
+        function crearMazo() {
+            let palos = ['♠', '♣', '♥', '♦'];
+            let valores = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+            mazo = [];
+            for (let palo of palos) {
+                for (let valor of valores) {
+                    mazo.push({ valor, palo });
+                }
+            }
+            mazo = mazo.sort(() => Math.random() - 0.5);
+        }
+
+        function repartirCartas() {
+            jugador.push(mazo.pop(), mazo.pop());
+            crupier.push(mazo.pop(), mazo.pop());
+            actualizarVista();
+        }
+
+        function pedirCarta() {
+            if (juegoTerminado) return;
+            jugador.push(mazo.pop());
+            actualizarVista();
+            verificarFinJuego();
+        }
+
+        function calcularPuntos(mano) {
+            let puntos = 0;
+            let ases = 0;
+            mano.forEach(carta => {
+                if (['J', 'Q', 'K'].includes(carta.valor)) {
+                    puntos += 10;
+                } else if (carta.valor === 'A') {
+                    ases += 1;
+                    puntos += 11;
+                } else {
+                    puntos += parseInt(carta.valor);
+                }
+            });
+            while (puntos > 21 && ases > 0) {
+                puntos -= 10;
+                ases -= 1;
+            }
+            return puntos;
+        }
+
+        function actualizarVista() {
+            document.getElementById("cartas-jugador").innerHTML = jugador.map(carta => `<div class='carta'>${carta.valor}${carta.palo}</div>`).join('');
+            document.getElementById("cartas-crupier").innerHTML = crupier.map(carta => `<div class='carta'>${carta.valor}${carta.palo}</div>`).join('');
+            document.getElementById("puntos-jugador").innerText = calcularPuntos(jugador);
+            document.getElementById("puntos-crupier").innerText = calcularPuntos(crupier);
+        }
+
+        function plantarse() {
+            juegoTerminado = true;
+            while (calcularPuntos(crupier) < 17) {
+                crupier.push(mazo.pop());
+                actualizarVista();
+            }
+            determinarGanador();
+        }
+
+        function determinarGanador() {
+            let puntosJugador = calcularPuntos(jugador);
+            let puntosCrupier = calcularPuntos(crupier);
+            let mensaje = "";
+            if (puntosJugador > 21) {
+                mensaje = "Te pasaste. ¡Pierdes!";
+            } else if (puntosCrupier > 21 || puntosJugador > puntosCrupier) {
+                mensaje = "¡Ganaste!";
+            } else if (puntosJugador === puntosCrupier) {
+                mensaje = "Empate";
+            } else {
+                mensaje = "El Dealer gana.";
+            }
+            document.getElementById("mensaje").innerText = mensaje;
+        }
+
+        function reiniciarJuego() {
+            jugador = [];
+            crupier = [];
+            juegoTerminado = false;
+            crearMazo();
+            repartirCartas();
+            document.getElementById("mensaje").innerText = "¡Empieza el juego!";
+        }
+
+        crearMazo();
+        repartirCartas();
+    </script>
+</body>
+</html>
